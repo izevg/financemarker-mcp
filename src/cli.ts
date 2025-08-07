@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
+import { DEFAULT_CACHE_TTL_MS } from './api/cache.js';
+import { DEFAULT_FINANCEMARKER_BASE_URL } from './api/client.js';
 import startFinanceMarkerMcpServer, {
   type FinanceMarkerServerOptions,
 } from './index.js';
@@ -26,8 +28,10 @@ async function main(): Promise<void> {
     cacheTtlMs?: string;
   }>();
 
-  if (!opts.apiToken || opts.apiToken.trim().length === 0) {
-    console.error('[financemarker-mcp] --api-token is required');
+  const envToken = process.env.FINANCEMARKER_API_TOKEN;
+  const apiToken = opts.apiToken ?? envToken;
+  if (!apiToken || apiToken.trim().length === 0) {
+    console.error('[financemarker-mcp] API token is required (provide --api-token or FINANCEMARKER_API_TOKEN env)');
     process.exitCode = 1;
     return;
   }
@@ -40,18 +44,30 @@ async function main(): Promise<void> {
     return undefined;
   })();
 
-  const options: FinanceMarkerServerOptions = { apiToken: opts.apiToken };
-  if (typeof opts.baseUrl === 'string') {
-    options.baseUrl = opts.baseUrl;
-  }
-  if (normalizedLevel) {
-    options.logLevel = normalizedLevel;
-  }
+  const envBaseUrl = process.env.FINANCEMARKER_BASE_URL;
+  const envLogLevel = process.env.FINANCEMARKER_LOG_LEVEL;
   const envTtl = process.env.FINANCEMARKER_CACHE_TTL_MS;
-  const ttlCandidate = opts.cacheTtlMs ?? envTtl;
-  if (ttlCandidate && !Number.isNaN(Number(ttlCandidate))) {
-    options.cacheTtlMs = Number(ttlCandidate);
+
+  const options: FinanceMarkerServerOptions = { apiToken };
+
+  // baseUrl: CLI -> ENV -> default
+  options.baseUrl = (typeof opts.baseUrl === 'string' && opts.baseUrl) || envBaseUrl || DEFAULT_FINANCEMARKER_BASE_URL;
+
+  // logLevel: CLI -> ENV -> 'info'
+  if (normalizedLevel) options.logLevel = normalizedLevel;
+  else if (typeof envLogLevel === 'string') {
+    const lvl = envLogLevel.toLowerCase();
+    if (lvl === 'debug' || lvl === 'info' || lvl === 'warn' || lvl === 'error' || lvl === 'silent') {
+      options.logLevel = lvl;
+    }
   }
+  if (!options.logLevel) options.logLevel = 'info';
+
+  // cacheTtlMs: CLI -> ENV -> default 24h
+  const ttlCandidate = opts.cacheTtlMs ?? envTtl;
+  options.cacheTtlMs = !ttlCandidate || Number.isNaN(Number(ttlCandidate))
+    ? DEFAULT_CACHE_TTL_MS
+    : Number(ttlCandidate);
 
   await startFinanceMarkerMcpServer(options);
 }
