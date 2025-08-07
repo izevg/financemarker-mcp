@@ -1,3 +1,7 @@
+# Cache DB files
+.cache/financemarker.sqlite
+.cache/*.sqlite
+
 # Node / TypeScript
 node_modules/
 dist/
