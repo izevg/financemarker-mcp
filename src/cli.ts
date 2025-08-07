@@ -13,6 +13,7 @@ program
   .option('--api-token <token>', 'FinanceMarker API token (required)')
   .option('--base-url <url>', 'FinanceMarker API base URL')
   .option('--log-level <level>', 'Log level (debug,info,warn,error)')
+  .option('--cache-ttl-ms <number>', 'Cache TTL in milliseconds (default 86400000)')
   .showHelpAfterError(true)
   .helpOption('-h, --help', 'Display help for command');
 
@@ -22,6 +23,7 @@ async function main(): Promise<void> {
     apiToken?: string;
     baseUrl?: string;
     logLevel?: string;
+    cacheTtlMs?: string;
   }>();
 
   if (!opts.apiToken || opts.apiToken.trim().length === 0) {
@@ -44,6 +46,11 @@ async function main(): Promise<void> {
   }
   if (normalizedLevel) {
     options.logLevel = normalizedLevel;
+  }
+  const envTtl = process.env.FINANCEMARKER_CACHE_TTL_MS;
+  const ttlCandidate = opts.cacheTtlMs ?? envTtl;
+  if (ttlCandidate && !Number.isNaN(Number(ttlCandidate))) {
+    options.cacheTtlMs = Number(ttlCandidate);
   }
 
   await startFinanceMarkerMcpServer(options);

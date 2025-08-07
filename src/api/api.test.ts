@@ -22,8 +22,7 @@ describe('ApiClient', () => {
     const url = `${DEFAULT_FINANCEMARKER_BASE_URL}/fm/v2/token_info`;
 
     mock.onGet(url).reply((config) => {
-      // @ts-expect-error axios types: params может быть Record<string, any>
-      const tokenInQuery = config.params?.api_token;
+      const tokenInQuery = (config as unknown as { params?: Record<string, unknown> }).params?.api_token;
       expect(tokenInQuery).toBe(apiToken);
       return [200, { day_limit: 1000, valid_to: '2030-01-01' }];
     });

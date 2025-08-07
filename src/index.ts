@@ -5,6 +5,7 @@ export type FinanceMarkerServerOptions = {
   apiToken: string;
   baseUrl?: string;
   logLevel?: LogLevel;
+  cacheTtlMs?: number;
 };
 
 export async function startFinanceMarkerMcpServer(
@@ -21,7 +22,7 @@ export async function startFinanceMarkerMcpServer(
 
   const logger = createLogger('financemarker-mcp', options.logLevel ?? 'info');
   logger.info('Инициализация сервера MCP...');
-  logger.debug('Опции запуска:', { baseUrl: options.baseUrl });
+  logger.debug('Опции запуска:', { baseUrl: options.baseUrl, cacheTtlMs: options.cacheTtlMs });
 
   // Инициализируем HTTP‑клиент (без реальных вызовов API на этом шаге)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
