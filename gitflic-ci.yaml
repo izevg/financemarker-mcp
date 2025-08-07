@@ -24,7 +24,7 @@ jobs:
     stage: install
     # Если используете Docker-агента, раскомментируйте образ ниже
     # image: node:20
-    script:
+    scripts:
       - node -v || true
       - npm -v || true
       - npm ci
@@ -32,13 +32,13 @@ jobs:
   typecheck:
     stage: typecheck
     needs: [install]
-    script:
+    scripts:
       - npm run typecheck
 
   test:
     stage: test
     needs: [install]
-    script:
+    scripts:
       - npm test
     artifacts:
       # Папка с отчётом покрытия
@@ -48,7 +48,7 @@ jobs:
   build:
     stage: build
     needs: [typecheck, test]
-    script:
+    scripts:
       - npm run build
 
   publish:
@@ -57,12 +57,8 @@ jobs:
     only:
       - tags
     # image: node:20
-    script:
-      - |
-        if [ -z "${NPM_TOKEN}" ]; then
-          echo "NPM_TOKEN is not set; skipping publish" >&2
-          exit 1
-        fi
+    scripts:
+      - if [ -z "${NPM_TOKEN}" ]; then echo "NPM_TOKEN is not set; skipping publish" >&2; exit 1; fi
       - npm config set //registry.npmjs.org/:_authToken "${NPM_TOKEN}"
       - npm publish --provenance --access public
 
