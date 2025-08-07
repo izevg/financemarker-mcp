@@ -1,0 +1,10 @@
+coverage
+src
+vitest.config.ts
+.taskmaster
+.cursor
+.env*
+.github
+**/*.test.*
+tsconfig.json
+

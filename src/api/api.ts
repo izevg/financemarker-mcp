@@ -40,16 +40,18 @@ export function createFinanceMarkerApiClient(
       ? createFinanceMarkerHttpClient({ baseUrl: options.baseUrl })
       : createFinanceMarkerHttpClient());
 
+  const isNonCacheablePath = (path: string): boolean => path === '/fm/v2/token_info';
+
   return {
     async get<T>(path: string, params?: Record<string, unknown>): Promise<T> {
       const cacheKey = buildRequestCacheKey('GET', path, params);
-      if (options.cache) {
+      if (options.cache && !isNonCacheablePath(path)) {
         const cached = await options.cache.get(cacheKey);
         if (cached !== undefined) return cached as T;
       }
       const response = await http.get<T>(path, { params: withApiToken(params, options.apiToken) });
       const data = response.data as T;
-      if (options.cache) {
+      if (options.cache && !isNonCacheablePath(path)) {
         const ttl = typeof options.defaultTtlMs === 'number' ? options.defaultTtlMs : DEFAULT_CACHE_TTL_MS;
         await options.cache.set(cacheKey, data, ttl);
       }
@@ -57,13 +59,13 @@ export function createFinanceMarkerApiClient(
     },
     async post<T>(path: string, data?: unknown, params?: Record<string, unknown>): Promise<T> {
       const cacheKey = buildRequestCacheKey('POST', path, params);
-      if (options.cache) {
+      if (options.cache && !isNonCacheablePath(path)) {
         const cached = await options.cache.get(cacheKey);
         if (cached !== undefined) return cached as T;
       }
       const response = await http.post<T>(path, data, { params: withApiToken(params, options.apiToken) });
       const respData = response.data as T;
-      if (options.cache) {
+      if (options.cache && !isNonCacheablePath(path)) {
         const ttl = typeof options.defaultTtlMs === 'number' ? options.defaultTtlMs : DEFAULT_CACHE_TTL_MS;
         await options.cache.set(cacheKey, respData, ttl);
       }
@@ -75,13 +77,13 @@ export function createFinanceMarkerApiClient(
       params?: Record<string, unknown>,
     ): Promise<T> {
       const cacheKey = buildRequestCacheKey('GET', path, params);
-      if (options.cache) {
+      if (options.cache && !isNonCacheablePath(path)) {
         const cached = await options.cache.get(cacheKey);
         if (cached !== undefined) return schema.parse(cached);
       }
       const { data } = await http.get(path, { params: withApiToken(params, options.apiToken) });
       const parsed = schema.parse(data);
-      if (options.cache) {
+      if (options.cache && !isNonCacheablePath(path)) {
         const ttl = typeof options.defaultTtlMs === 'number' ? options.defaultTtlMs : DEFAULT_CACHE_TTL_MS;
         await options.cache.set(cacheKey, parsed, ttl);
       }
@@ -94,13 +96,13 @@ export function createFinanceMarkerApiClient(
       params?: Record<string, unknown>,
     ): Promise<T> {
       const cacheKey = buildRequestCacheKey('POST', path, params);
-      if (options.cache) {
+      if (options.cache && !isNonCacheablePath(path)) {
         const cached = await options.cache.get(cacheKey);
         if (cached !== undefined) return schema.parse(cached);
       }
       const resp = await http.post(path, data, { params: withApiToken(params, options.apiToken) });
       const parsed = schema.parse(resp.data);
-      if (options.cache) {
+      if (options.cache && !isNonCacheablePath(path)) {
         const ttl = typeof options.defaultTtlMs === 'number' ? options.defaultTtlMs : DEFAULT_CACHE_TTL_MS;
         await options.cache.set(cacheKey, parsed, ttl);
       }

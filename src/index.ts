@@ -67,16 +67,238 @@ export async function startFinanceMarkerMcpServer(
     {
       title: 'Exchanges',
       description: 'Получить список бирж',
+      inputSchema: {},
+    },
+    async () => {
+      const data = await apiClient.get('/fm/v2/exchanges');
+      return { content: [{ type: 'text' as const, text: JSON.stringify(data) }] };
+    },
+  );
+
+  // Calendar
+  server.registerTool(
+    'financemarker_get_calendar',
+    {
+      title: 'Calendar',
+      description: 'Календарь предстоящих событий',
       inputSchema: {
-        limit: z.number().int().min(1).max(100).optional(),
-        offset: z.number().int().min(0).optional(),
+        limit: z.number().int().min(1).max(100).optional().describe('Размер ответа (максимум 100)'),
+        offset: z.number().int().min(0).optional().describe('Отступ'),
+        sort_by: z.string().optional().describe('Поле сортировки'),
+        sort_order: z.enum(['ASC', 'DESC']).optional().describe('Порядок сортировки'),
       },
     },
-    async ({ limit, offset }) => {
+    async ({ limit, offset, sort_by, sort_order }) => {
       const params: Record<string, unknown> = {};
       if (typeof limit === 'number') params.limit = limit;
       if (typeof offset === 'number') params.offset = offset;
-      const data = await apiClient.get('/fm/v2/exchanges', params);
+      if (typeof sort_by === 'string') params.sort_by = sort_by;
+      if (typeof sort_order === 'string') params.sort_order = sort_order;
+      const data = await apiClient.get('/fm/v2/calendar', params);
+      return { content: [{ type: 'text' as const, text: JSON.stringify(data) }] };
+    },
+  );
+
+  // Disclosure
+  server.registerTool(
+    'financemarker_get_disclosure',
+    {
+      title: 'Disclosure',
+      description: 'Раскрытие корпоративной информации',
+      inputSchema: {
+        limit: z.number().int().min(1).max(100).optional().describe('Размер ответа (максимум 100)'),
+        offset: z.number().int().min(0).optional().describe('Отступ'),
+        sort_by: z.string().optional().describe('Поле сортировки'),
+        sort_order: z.enum(['ASC', 'DESC']).optional().describe('Порядок сортировки'),
+      },
+    },
+    async ({ limit, offset, sort_by, sort_order }) => {
+      const params: Record<string, unknown> = {};
+      if (typeof limit === 'number') params.limit = limit;
+      if (typeof offset === 'number') params.offset = offset;
+      if (typeof sort_by === 'string') params.sort_by = sort_by;
+      if (typeof sort_order === 'string') params.sort_order = sort_order;
+      const data = await apiClient.get('/fm/v2/disclosure', params);
+      return { content: [{ type: 'text' as const, text: JSON.stringify(data) }] };
+    },
+  );
+
+  // Dividends
+  server.registerTool(
+    'financemarker_get_dividends',
+    {
+      title: 'Dividends',
+      description: 'Получить календарь дивидендов',
+      inputSchema: {
+        limit: z.number().int().min(1).max(100).optional().describe('Размер ответа (максимум 100)'),
+        offset: z.number().int().min(0).optional().describe('Отступ'),
+        sort_by: z.string().optional().describe('Поле сортировки'),
+        sort_order: z.enum(['ASC', 'DESC']).optional().describe('Порядок сортировки'),
+        updated_in_days: z.number().int().optional().describe('Фильтр: обновлено за последние X дней'),
+        mode: z.enum(['past', 'upcoming']).optional().describe('Тип календаря: прошедшие/предстоящие'),
+      },
+    },
+    async ({ limit, offset, sort_by, sort_order, updated_in_days, mode }) => {
+      const params: Record<string, unknown> = {};
+      if (typeof limit === 'number') params.limit = limit;
+      if (typeof offset === 'number') params.offset = offset;
+      if (typeof sort_by === 'string') params.sort_by = sort_by;
+      if (typeof sort_order === 'string') params.sort_order = sort_order;
+      if (typeof updated_in_days === 'number') params.updated_in_days = updated_in_days;
+      if (typeof mode === 'string') params.mode = mode;
+      const data = await apiClient.get('/fm/v2/dividends', params);
+      return { content: [{ type: 'text' as const, text: JSON.stringify(data) }] };
+    },
+  );
+
+  // Experts
+  server.registerTool(
+    'financemarker_get_experts',
+    {
+      title: 'Experts',
+      description: 'Получить рейтинг аналитиков',
+      inputSchema: {
+        limit: z.number().int().min(1).max(100).optional().describe('Размер ответа (максимум 100)'),
+        offset: z.number().int().min(0).optional().describe('Отступ'),
+        sort_by: z.string().optional().describe('Поле сортировки'),
+        sort_order: z.enum(['ASC', 'DESC']).optional().describe('Порядок сортировки'),
+        updated_in_days: z.number().int().optional().describe('Фильтр: обновлено за последние X дней'),
+      },
+    },
+    async ({ limit, offset, sort_by, sort_order, updated_in_days }) => {
+      const params: Record<string, unknown> = {};
+      if (typeof limit === 'number') params.limit = limit;
+      if (typeof offset === 'number') params.offset = offset;
+      if (typeof sort_by === 'string') params.sort_by = sort_by;
+      if (typeof sort_order === 'string') params.sort_order = sort_order;
+      if (typeof updated_in_days === 'number') params.updated_in_days = updated_in_days;
+      const data = await apiClient.get('/fm/v2/experts', params);
+      return { content: [{ type: 'text' as const, text: JSON.stringify(data) }] };
+    },
+  );
+
+  // Ideas list
+  server.registerTool(
+    'financemarker_get_ideas',
+    {
+      title: 'Ideas',
+      description: 'Получить список инвест-идей',
+      inputSchema: {
+        limit: z.number().int().min(1).max(100).optional().describe('Размер ответа (максимум 100)'),
+        offset: z.number().int().min(0).optional().describe('Отступ'),
+        sort_by: z.string().optional().describe('Поле сортировки'),
+        sort_order: z.enum(['ASC', 'DESC']).optional().describe('Порядок сортировки'),
+        updated_in_days: z.number().int().optional().describe('Фильтр: обновлено за последние X дней'),
+      },
+    },
+    async ({ limit, offset, sort_by, sort_order, updated_in_days }) => {
+      const params: Record<string, unknown> = {};
+      if (typeof limit === 'number') params.limit = limit;
+      if (typeof offset === 'number') params.offset = offset;
+      if (typeof sort_by === 'string') params.sort_by = sort_by;
+      if (typeof sort_order === 'string') params.sort_order = sort_order;
+      if (typeof updated_in_days === 'number') params.updated_in_days = updated_in_days;
+      const data = await apiClient.get('/fm/v2/ideas', params);
+      return { content: [{ type: 'text' as const, text: JSON.stringify(data) }] };
+    },
+  );
+
+  // Idea details by id
+  server.registerTool(
+    'financemarker_get_idea_details',
+    {
+      title: 'Idea Details',
+      description: 'Получить детали инвест-идеи',
+      inputSchema: { id: z.number().int().describe('ID идеи (целое число)') },
+    },
+    async ({ id }) => {
+      const data = await apiClient.get(`/fm/v2/ideas/${id}`);
+      return { content: [{ type: 'text' as const, text: JSON.stringify(data) }] };
+    },
+  );
+
+  // Insider transactions
+  server.registerTool(
+    'financemarker_get_insider_transactions',
+    {
+      title: 'Insider Transactions',
+      description: 'Получить сделки инсайдеров',
+      inputSchema: {
+        limit: z.number().int().min(1).max(100).optional().describe('Размер ответа (максимум 100)'),
+        offset: z.number().int().min(0).optional().describe('Отступ'),
+        sort_by: z.string().optional().describe('Поле сортировки'),
+        sort_order: z.enum(['ASC', 'DESC']).optional().describe('Порядок сортировки'),
+        updated_in_days: z.number().int().optional().describe('Фильтр: обновлено за последние X дней'),
+      },
+    },
+    async ({ limit, offset, sort_by, sort_order, updated_in_days }) => {
+      const params: Record<string, unknown> = {};
+      if (typeof limit === 'number') params.limit = limit;
+      if (typeof offset === 'number') params.offset = offset;
+      if (typeof sort_by === 'string') params.sort_by = sort_by;
+      if (typeof sort_order === 'string') params.sort_order = sort_order;
+      if (typeof updated_in_days === 'number') params.updated_in_days = updated_in_days;
+      const data = await apiClient.get('/fm/v2/insider_transactions', params);
+      return { content: [{ type: 'text' as const, text: JSON.stringify(data) }] };
+    },
+  );
+
+  // Operation metrics
+  server.registerTool(
+    'financemarker_get_operation_metrics',
+    {
+      title: 'Operation Metrics',
+      description: 'Справочник операционных показателей',
+      inputSchema: {},
+    },
+    async () => {
+      const data = await apiClient.get('/fm/v2/operation_metrics');
+      return { content: [{ type: 'text' as const, text: JSON.stringify(data) }] };
+    },
+  );
+
+  // Stocks list
+  server.registerTool(
+    'financemarker_get_stocks',
+    {
+      title: 'Stocks',
+      description: 'Получить список компаний',
+      inputSchema: {
+        limit: z.number().int().min(1).max(100).optional().describe('Размер ответа (максимум 100)'),
+        offset: z.number().int().min(0).optional().describe('Отступ'),
+        sort_by: z.string().optional().describe('Поле сортировки'),
+        sort_order: z.enum(['ASC', 'DESC']).optional().describe('Порядок сортировки'),
+        updated_in_days: z.number().int().optional().describe('Фильтр: обновлено за последние X дней'),
+      },
+    },
+    async ({ limit, offset, sort_by, sort_order, updated_in_days }) => {
+      const params: Record<string, unknown> = {};
+      if (typeof limit === 'number') params.limit = limit;
+      if (typeof offset === 'number') params.offset = offset;
+      if (typeof sort_by === 'string') params.sort_by = sort_by;
+      if (typeof sort_order === 'string') params.sort_order = sort_order;
+      if (typeof updated_in_days === 'number') params.updated_in_days = updated_in_days;
+      const data = await apiClient.get('/fm/v2/stocks', params);
+      return { content: [{ type: 'text' as const, text: JSON.stringify(data) }] };
+    },
+  );
+
+  // Stock details by exchange:code
+  server.registerTool(
+    'financemarker_get_stock_details',
+    {
+      title: 'Stock Details',
+      description: 'Получить данные по компании',
+      inputSchema: {
+        exchange: z.string().describe('Код биржи (например, MOEX)'),
+        code: z.string().describe('Тикер (например, GAZP)'),
+        include: z.string().optional().describe('Секции данных, например "ratios,reports,dividends"'),
+      },
+    },
+    async ({ exchange, code, include }) => {
+      const params: Record<string, unknown> = {};
+      if (typeof include === 'string' && include.trim()) params.include = include;
+      const data = await apiClient.get(`/fm/v2/stocks/${exchange}:${code}`, params);
       return { content: [{ type: 'text' as const, text: JSON.stringify(data) }] };
     },
   );
