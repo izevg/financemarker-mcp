@@ -45,7 +45,7 @@ export async function startFinanceMarkerMcpServer(
   const server = new McpServer({ name: 'financemarker-mcp', version: '1.0.0' });
 
   server.registerTool(
-    'get_token_info',
+    'financemarker_get_token_info',
     {
       title: 'Token Info',
       description: 'Получить информацию о текущем API‑токене FinanceMarker',
@@ -63,7 +63,7 @@ export async function startFinanceMarkerMcpServer(
 
   // Пример: получить список бирж (опциональные параметры пагинации)
   server.registerTool(
-    'get_exchanges',
+    'financemarker_get_exchanges',
     {
       title: 'Exchanges',
       description: 'Получить список бирж',
