@@ -1,66 +1,54 @@
 # GitFlic CI pipeline for @ru-financial-tools/financemarker-mcp
 # Stages: install -> typecheck -> test -> build -> publish
 
-pipeline:
-  stages:
-    - install
-    - typecheck
-    - test
-    - build
-    - publish
+stages:
+  - install
+  - typecheck
+  - test
+  - build
+  - publish
 
 variables:
   NODE_ENV: 'ci'
-  # Установите секрет NPM_TOKEN в настройках проекта CI/CD
-  # NPM_TOKEN: "${NPM_TOKEN}"
 
 cache:
-  # Кэш npm-зависимостей на агенте
   paths:
     - ~/.npm
 
-jobs:
-  install:
-    stage: install
-    # Если используете Docker-агента, раскомментируйте образ ниже
-    # image: node:20
-    scripts:
-      - node -v || true
-      - npm -v || true
-      - npm ci
+install:
+  stage: install
+  # image: node:20
+  scripts:
+    - node -v || true
+    - npm -v || true
+    - npm ci
 
-  typecheck:
-    stage: typecheck
-    needs: [install]
-    scripts:
-      - npm run typecheck
+typecheck:
+  stage: typecheck
+  scripts:
+    - npm run typecheck
 
-  test:
-    stage: test
-    needs: [install]
-    scripts:
-      - npm test
-    artifacts:
-      # Папка с отчётом покрытия
-      paths:
-        - coverage
+test:
+  stage: test
+  scripts:
+    - npm test
+  artifacts:
+    paths:
+      - coverage
 
-  build:
-    stage: build
-    needs: [typecheck, test]
-    scripts:
-      - npm run build
+build:
+  stage: build
+  scripts:
+    - npm run build
 
-  publish:
-    stage: publish
-    # Публикуем только при пуше тега релиза вида vX.Y.Z
-    only:
-      - tags
-    # image: node:20
-    scripts:
-      - if [ -z "${NPM_TOKEN}" ]; then echo "NPM_TOKEN is not set; skipping publish" >&2; exit 1; fi
-      - npm config set //registry.npmjs.org/:_authToken "${NPM_TOKEN}"
-      - npm publish --provenance --access public
+publish:
+  stage: publish
+  only:
+    - tags
+  scripts:
+    - if [ -z "${NPM_TOKEN}" ]; then echo "NPM_TOKEN is not set; skipping publish" >&2; exit 1; fi
+    - npm config set //registry.npmjs.org/:_authToken "${NPM_TOKEN}"
+    - npm publish --provenance --access public
 
 # Данный файл - шаблонная конфигурация CI/CD конвейера. Он может быть изменен по Вашему усмотрению.
 # Некоторые шаблоны требуют предварительной настройки перед запуском.
