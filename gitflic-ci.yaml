@@ -1,4 +1,72 @@
-# Данный файл - шаблонная конфигурация CI/CD конвейера. Он может быть изменен по Вашему усмотрению. 
+# GitFlic CI pipeline for @ru-financial-tools/financemarker-mcp
+# Stages: install -> typecheck -> test -> build -> publish
+
+pipeline:
+  stages:
+    - install
+    - typecheck
+    - test
+    - build
+    - publish
+
+variables:
+  NODE_ENV: 'ci'
+  # Установите секрет NPM_TOKEN в настройках проекта CI/CD
+  # NPM_TOKEN: "${NPM_TOKEN}"
+
+cache:
+  # Кэш npm-зависимостей на агенте
+  paths:
+    - ~/.npm
+
+jobs:
+  install:
+    stage: install
+    # Если используете Docker-агента, раскомментируйте образ ниже
+    # image: node:20
+    script:
+      - node -v || true
+      - npm -v || true
+      - npm ci
+
+  typecheck:
+    stage: typecheck
+    needs: [install]
+    script:
+      - npm run typecheck
+
+  test:
+    stage: test
+    needs: [install]
+    script:
+      - npm test
+    artifacts:
+      # Папка с отчётом покрытия
+      paths:
+        - coverage
+
+  build:
+    stage: build
+    needs: [typecheck, test]
+    script:
+      - npm run build
+
+  publish:
+    stage: publish
+    # Публикуем только при пуше тега релиза вида vX.Y.Z
+    only:
+      - tags
+    # image: node:20
+    script:
+      - |
+        if [ -z "${NPM_TOKEN}" ]; then
+          echo "NPM_TOKEN is not set; skipping publish" >&2
+          exit 1
+        fi
+      - npm config set //registry.npmjs.org/:_authToken "${NPM_TOKEN}"
+      - npm publish --provenance --access public
+
+# Данный файл - шаблонная конфигурация CI/CD конвейера. Он может быть изменен по Вашему усмотрению.
 # Некоторые шаблоны требуют предварительной настройки перед запуском.
 #
 # Подробнее о синтаксисе можно узнать в документации:
@@ -47,6 +115,6 @@ deploy:
     - build
   rules:
     - if: $TEST_1_SUCCESS == "true" && $TEST_2_SUCCESS == "true"
-  
+
 after_script:
   - echo "Скрипт после основных инструкций (в каждой задаче)"
