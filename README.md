@@ -21,7 +21,7 @@ MCP‑сервер для интеграции `FinanceMarker.ru` с LLM‑аг�
 ## Быстрый старт (npx)
 
 ```bash
-npx @ru-financial-tools/financemarker-mcp@latest
+npx --package=@ru-financial-tools/financemarker-mcp financemarker-mcp
 ```
 
 ## Настройка в Cursor (рекомендуется «сырые» значения)
@@ -33,7 +33,7 @@ npx @ru-financial-tools/financemarker-mcp@latest
   "mcpServers": {
     "financemarker-mcp": {
       "command": "npx",
-      "args": ["-y", "@ru-financial-tools/financemarker-mcp"],
+      "args": ["-y", "--package=@ru-financial-tools/financemarker-mcp", "financemarker-mcp"],
       "env": {
         "FINANCEMARKER_API_TOKEN": "<ваш_токен>",
         "FINANCEMARKER_BASE_URL": "https://financemarker.ru/api",

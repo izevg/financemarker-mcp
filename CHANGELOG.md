@@ -18,3 +18,7 @@ The format is based on Keep a Changelog and Semantic Versioning.
 
 ## [Unreleased]
 - Изменения после 1.0.0 будут документироваться здесь.
+
+## 1.0.1 — 2025-08-08
+
+- README: корректный запуск через npx со scoped пакетом (`--package` + явный bin)

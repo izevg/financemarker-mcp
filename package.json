@@ -1,6 +1,6 @@
 {
   "name": "@ru-financial-tools/financemarker-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP‑сервер для интеграции `FinanceMarker.ru` с LLM‑агентами, IDE (MCP), n8n и другими MCP‑совместимыми клиентами. Сервер проксирует REST API FinanceMarker и предоставляет его как набор MCP tools.",
   "homepage": "https://github.com/izevg/financemarker-mcp#readme",
   "repository": {
